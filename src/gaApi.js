@@ -76,7 +76,7 @@ function getAccountSummaries({ from }) {
  * Returns an array of accounts.
  * @param query
  * @param query.from { FromRoot }
- * @param query.from.oauth2Client { object }
+ * @param query.from.oauth2Client { object } authenticated client
  * @returns {Promise}
  * @fulfil {{ from: FromRoot, accounts: Array.Object }} - pass down accounts along with the origin
  */
