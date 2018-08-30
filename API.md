@@ -120,13 +120,13 @@ Returns an array of views.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromWebProperty, views: Array.Object </code>} - pass down views along with the origin
 
-| Param                    | Type                                             | Description          |
-| ------------------------ | ------------------------------------------------ | -------------------- |
-| query                    |                                                  |                      |
-| query.from               | [<code>FromWebProperty</code>](#FromWebProperty) |                      |
-| query.from.oauth2Client  | <code>object</code>                              | authenticated client |
-| query.from.accountId     | <code>string</code>                              |                      |
-| query.from.webPropertyId | <code>string</code>                              |                      |
+| Param                    | Type                                             | Description             |
+| ------------------------ | ------------------------------------------------ | ----------------------- |
+| query                    |                                                  |                         |
+| query.from               | [<code>FromWebProperty</code>](#FromWebProperty) |                         |
+| query.from.oauth2Client  | <code>object</code>                              | authenticated client    |
+| query.from.accountId     | <code>string</code>                              | the id of account in GA |
+| query.from.webPropertyId | <code>string</code>                              |                         |
 
 <a name="FromRoot"></a>
 
