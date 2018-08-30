@@ -10,7 +10,7 @@
   "scripts": {
     "release": "node ./node_modules/release-flow/lib/cli.js start",
     "release-pub": "node ./node_modules/release-flow/lib/cli.js publish",
-    "release-fin": "node ./node_modules/release-flow/lib/cli.js finish",
+    "release-fin": "node ./node_modules/release-flow/lib/cli.js finish"
   },
   "author": "Eldar Djafarov <djkojb@gmail.com>",
   "license": "MIT",
