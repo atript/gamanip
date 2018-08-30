@@ -71,10 +71,11 @@ Returns an array of summaries for accounts. (all accounts and properties). Do no
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromRoot, summary: Array.Object </code>} - pass down summaries along with the origin
 
-| Param      | Type                               |
-| ---------- | ---------------------------------- |
-| query      |                                    |
-| query.from | [<code>FromRoot</code>](#FromRoot) |
+| Param                   | Type                               |
+| ----------------------- | ---------------------------------- |
+| query                   |                                    |
+| query.from              | [<code>FromRoot</code>](#FromRoot) |
+| query.from.oauth2Client | <code>object</code>                |
 
 <a name="module_gamanip..getAccounts"></a>
 
@@ -86,10 +87,11 @@ Returns an array of accounts.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromRoot, accounts: Array.Object </code>} - pass down accounts along with the origin
 
-| Param      | Type                               |
-| ---------- | ---------------------------------- |
-| query      |                                    |
-| query.from | [<code>FromRoot</code>](#FromRoot) |
+| Param                   | Type                               |
+| ----------------------- | ---------------------------------- |
+| query                   |                                    |
+| query.from              | [<code>FromRoot</code>](#FromRoot) |
+| query.from.oauth2Client | <code>object</code>                |
 
 <a name="module_gamanip..getWebProperties"></a>
 
@@ -101,10 +103,12 @@ Returns an array of web properties.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromAccount, webProperties: Array.Object </code>} - pass down webProperties along with the origin
 
-| Param      | Type                                     |
-| ---------- | ---------------------------------------- |
-| query      |                                          |
-| query.from | [<code>FromAccount</code>](#FromAccount) |
+| Param                   | Type                                     |
+| ----------------------- | ---------------------------------------- |
+| query                   |                                          |
+| query.from              | [<code>FromAccount</code>](#FromAccount) |
+| query.from.oauth2Client | <code>object</code>                      |
+| query.from.accountId    | <code>string</code>                      |
 
 <a name="module_gamanip..getViews"></a>
 
@@ -116,10 +120,13 @@ Returns an array of views.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromWebProperty, views: Array.Object </code>} - pass down views along with the origin
 
-| Param      | Type                                             |
-| ---------- | ------------------------------------------------ |
-| query      |                                                  |
-| query.from | [<code>FromWebProperty</code>](#FromWebProperty) |
+| Param                    | Type                                             |
+| ------------------------ | ------------------------------------------------ |
+| query                    |                                                  |
+| query.from               | [<code>FromWebProperty</code>](#FromWebProperty) |
+| query.from.oauth2Client  | <code>object</code>                              |
+| query.from.accountId     | <code>string</code>                              |
+| query.from.webPropertyId | <code>string</code>                              |
 
 <a name="FromRoot"></a>
 
