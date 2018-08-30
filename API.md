@@ -82,11 +82,11 @@ Returns an array of accounts.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromRoot, accounts: Array.Object </code>} - pass down accounts along with the origin  
 
-| Param | Type |
-| --- | --- |
-| query |  | 
-| query.from | [<code>FromRoot</code>](#FromRoot) | 
-| query.from.oauth2Client | <code>object</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.from | [<code>FromRoot</code>](#FromRoot) |  |
+| query.from.oauth2Client | <code>object</code> | authenticated client |
 
 <a name="module_gamanip..getWebProperties"></a>
 
