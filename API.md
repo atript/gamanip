@@ -29,10 +29,10 @@ A Promise based module for working with Google Analytics Management API.
   - [~MAX_TIMEOUT_COUNT](#module_gamanip..MAX_TIMEOUT_COUNT)
   - [~START_TIMEOUT_TIME](#module_gamanip..START_TIMEOUT_TIME)
   - [~backOff()](#module_gamanip..backOff) ⇒ <code>function</code>
-  - [~getAccountSummaries()](#module_gamanip..getAccountSummaries) ⇒ <code>Promise</code>
-  - [~getAccounts()](#module_gamanip..getAccounts) ⇒ <code>Promise</code>
-  - [~getWebProperties()](#module_gamanip..getWebProperties) ⇒ <code>Promise</code>
-  - [~getViews()](#module_gamanip..getViews) ⇒ <code>Promise</code>
+  - [~getAccountSummaries(query)](#module_gamanip..getAccountSummaries) ⇒ <code>Promise</code>
+  - [~getAccounts(query)](#module_gamanip..getAccounts) ⇒ <code>Promise</code>
+  - [~getWebProperties(query)](#module_gamanip..getWebProperties) ⇒ <code>Promise</code>
+  - [~getViews(query)](#module_gamanip..getViews) ⇒ <code>Promise</code>
 
 <a name="module_gamanip..MAX_TIMEOUT_COUNT"></a>
 
@@ -63,40 +63,64 @@ Retries the function if error contains errors with one of following reasons 'rat
 
 <a name="module_gamanip..getAccountSummaries"></a>
 
-### gamanip~getAccountSummaries() ⇒ <code>Promise</code>
+### gamanip~getAccountSummaries(query) ⇒ <code>Promise</code>
 
 Get account summaries.
 Returns an array of summaries for accounts. (all accounts and properties). Do not return profiles.
 
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
-**Fulfil**: <code>{ from: FromRoot, summary: Array.Object </code>} - pass down summaries along with the origin  
+**Fulfil**: <code>{ from: FromRoot, summary: Array.Object </code>} - pass down summaries along with the origin
+
+| Param      | Type                               |
+| ---------- | ---------------------------------- |
+| query      |                                    |
+| query.from | [<code>FromRoot</code>](#FromRoot) |
+
 <a name="module_gamanip..getAccounts"></a>
 
-### gamanip~getAccounts() ⇒ <code>Promise</code>
+### gamanip~getAccounts(query) ⇒ <code>Promise</code>
 
 Get accounts data.
 Returns an array of accounts.
 
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
-**Fulfil**: <code>{ from: FromRoot, accounts: Array.Object </code>} - pass down accounts along with the origin  
+**Fulfil**: <code>{ from: FromRoot, accounts: Array.Object </code>} - pass down accounts along with the origin
+
+| Param      | Type                               |
+| ---------- | ---------------------------------- |
+| query      |                                    |
+| query.from | [<code>FromRoot</code>](#FromRoot) |
+
 <a name="module_gamanip..getWebProperties"></a>
 
-### gamanip~getWebProperties() ⇒ <code>Promise</code>
+### gamanip~getWebProperties(query) ⇒ <code>Promise</code>
 
 Get web properties data.
 Returns an array of web properties.
 
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
-**Fulfil**: <code>{ from: FromAccount, webProperties: Array.Object </code>} - pass down webProperties along with the origin  
+**Fulfil**: <code>{ from: FromAccount, webProperties: Array.Object </code>} - pass down webProperties along with the origin
+
+| Param      | Type                                     |
+| ---------- | ---------------------------------------- |
+| query      |                                          |
+| query.from | [<code>FromAccount</code>](#FromAccount) |
+
 <a name="module_gamanip..getViews"></a>
 
-### gamanip~getViews() ⇒ <code>Promise</code>
+### gamanip~getViews(query) ⇒ <code>Promise</code>
 
 Get views from web property.
 Returns an array of views.
 
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
-**Fulfil**: <code>{ from: FromWebProperty, views: Array.Object </code>} - pass down views along with the origin  
+**Fulfil**: <code>{ from: FromWebProperty, views: Array.Object </code>} - pass down views along with the origin
+
+| Param      | Type                                             |
+| ---------- | ------------------------------------------------ |
+| query      |                                                  |
+| query.from | [<code>FromWebProperty</code>](#FromWebProperty) |
+
 <a name="FromRoot"></a>
 
 ## FromRoot : <code>object</code>
