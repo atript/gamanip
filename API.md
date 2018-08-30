@@ -97,12 +97,12 @@ Returns an array of web properties.
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
 **Fulfil**: <code>{ from: FromAccount, webProperties: Array.Object </code>} - pass down webProperties along with the origin  
 
-| Param | Type |
-| --- | --- |
-| query |  | 
-| query.from | [<code>FromAccount</code>](#FromAccount) | 
-| query.from.oauth2Client | <code>object</code> | 
-| query.from.accountId | <code>string</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.from | [<code>FromAccount</code>](#FromAccount) |  |
+| query.from.oauth2Client | <code>object</code> |  |
+| query.from.accountId | <code>string</code> | the id of account in GA |
 
 <a name="module_gamanip..getViews"></a>
 
