@@ -13,6 +13,7 @@
     "prettier": "node ./node_modules/prettier/bin-prettier.js --write **/*.js **/**/*.js **/**/**/*.js !./node_modules/**",
     "flow:check": "node node_modules/flow-bin/cli.js check .",
     "precommit": "npm run flow:check && pretty-quick --staged",
+    "jsdoc": "node ./node_modules/jsdoc-to-markdown/bin/cli.js --files ./**/* ./* > API.md",
     "release-fin": "node ./node_modules/release-flow/lib/cli.js finish"
   },
   "author": "Eldar Djafarov <djkojb@gmail.com>",
@@ -23,5 +24,8 @@
     "prettier": "^1.14.2",
     "pretty-quick": "^1.6.0",
     "release-flow": "^1.2.1"
+  },
+  "dependencies": {
+    "googleapis": "^33.0.0"
   }
 }
