@@ -109,7 +109,7 @@ function getWebProperties({ from }) {
  * Returns an array of views.
  * @param query
  * @param query.from { FromWebProperty }
- * @param query.from.oauth2Client { object }
+ * @param query.from.oauth2Client { object } authenticated client
  * @param query.from.accountId { string }
  * @param query.from.webPropertyId { string }
  * @returns {Promise}
