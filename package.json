@@ -1,0 +1,21 @@
+{
+  "name": "gamanip",
+  "version": "1.0.0",
+  "description": "Google Analytics Data/Management Service/API",
+  "main": "index.js",
+  "repository": {
+    "url": "git@github.com:atript/gamanip.git",
+    "type": "git"
+  },
+  "scripts": {
+    "release": "node ./node_modules/release-flow/lib/cli.js start",
+    "release-pub": "node ./node_modules/release-flow/lib/cli.js publish",
+    "release-fin": "node ./node_modules/release-flow/lib/cli.js finish",
+  },
+  "author": "Eldar Djafarov <djkojb@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdoc-to-markdown": "^4.0.1",
+    "release-flow": "^1.2.1"
+  }
+}
