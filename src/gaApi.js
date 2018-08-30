@@ -60,6 +60,7 @@ function backOff(fn) {
  * Returns an array of summaries for accounts. (all accounts and properties). Do not return profiles.
  * @param query
  * @param query.from { FromRoot }
+ * @param query.from.oauth2Client { object }
  * @returns {Promise}
  * @fulfil {{ from: FromRoot, summary: Array.Object }} - pass down summaries along with the origin
  */
@@ -75,6 +76,7 @@ function getAccountSummaries({ from }) {
  * Returns an array of accounts.
  * @param query
  * @param query.from { FromRoot }
+ * @param query.from.oauth2Client { object }
  * @returns {Promise}
  * @fulfil {{ from: FromRoot, accounts: Array.Object }} - pass down accounts along with the origin
  */
@@ -90,6 +92,8 @@ function getAccounts({ from }) {
  * Returns an array of web properties.
  * @param query
  * @param query.from { FromAccount }
+ * @param query.from.oauth2Client { object }
+ * @param query.from.accountId { string }
  * @returns {Promise}
  * @fulfil {{ from: FromAccount, webProperties: Array.Object }} - pass down webProperties along with the origin
  */
@@ -105,6 +109,9 @@ function getWebProperties({ from }) {
  * Returns an array of views.
  * @param query
  * @param query.from { FromWebProperty }
+ * @param query.from.oauth2Client { object }
+ * @param query.from.accountId { string }
+ * @param query.from.webPropertyId { string }
  * @returns {Promise}
  * @fulfil {{ from: FromWebProperty, views: Array.Object }} - pass down views along with the origin
  */
