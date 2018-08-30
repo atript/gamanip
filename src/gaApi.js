@@ -111,7 +111,7 @@ function getWebProperties({ from }) {
  * @param query.from { FromWebProperty }
  * @param query.from.oauth2Client { object } authenticated client
  * @param query.from.accountId { string } the id of account in GA
- * @param query.from.webPropertyId { string }
+ * @param query.from.webPropertyId { string } the id of web  in GA
  * @returns {Promise}
  * @fulfil {{ from: FromWebProperty, views: Array.Object }} - pass down views along with the origin
  */
