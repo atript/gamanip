@@ -93,7 +93,7 @@ function getAccounts({ from }) {
  * @param query
  * @param query.from { FromAccount }
  * @param query.from.oauth2Client { object }
- * @param query.from.accountId { string }
+ * @param query.from.accountId { string } the id of account in GA
  * @returns {Promise}
  * @fulfil {{ from: FromAccount, webProperties: Array.Object }} - pass down webProperties along with the origin
  */
