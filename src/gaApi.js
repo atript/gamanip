@@ -58,6 +58,8 @@ function backOff(fn) {
 /**
  * Get account summaries.
  * Returns an array of summaries for accounts. (all accounts and properties). Do not return profiles.
+ * @param query
+ * @param query.from { FromRoot }
  * @returns {Promise}
  * @fulfil {{ from: FromRoot, summary: Array.Object }} - pass down summaries along with the origin
  */
@@ -71,6 +73,8 @@ function getAccountSummaries({ from }) {
 /**
  * Get accounts data.
  * Returns an array of accounts.
+ * @param query
+ * @param query.from { FromRoot }
  * @returns {Promise}
  * @fulfil {{ from: FromRoot, accounts: Array.Object }} - pass down accounts along with the origin
  */
@@ -84,6 +88,8 @@ function getAccounts({ from }) {
 /**
  * Get web properties data.
  * Returns an array of web properties.
+ * @param query
+ * @param query.from { FromAccount }
  * @returns {Promise}
  * @fulfil {{ from: FromAccount, webProperties: Array.Object }} - pass down webProperties along with the origin
  */
@@ -97,6 +103,8 @@ function getWebProperties({ from }) {
 /**
  * Get views from web property.
  * Returns an array of views.
+ * @param query
+ * @param query.from { FromWebProperty }
  * @returns {Promise}
  * @fulfil {{ from: FromWebProperty, views: Array.Object }} - pass down views along with the origin
  */
