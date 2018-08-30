@@ -101,7 +101,7 @@ Returns an array of web properties.
 | --- | --- | --- |
 | query |  |  |
 | query.from | [<code>FromAccount</code>](#FromAccount) |  |
-| query.from.oauth2Client | <code>object</code> |  |
+| query.from.oauth2Client | <code>object</code> | authenticated client |
 | query.from.accountId | <code>string</code> | the id of account in GA |
 
 <a name="module_gamanip..getViews"></a>
