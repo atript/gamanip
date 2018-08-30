@@ -7,16 +7,15 @@ const analytics = google.analytics('v3');
 const webmasters = google.webmasters('v3');
 const errors = require('../../errors');
 /**
-* Number of retries for backOff function before throwing the error.
-* @kind constant
-*/
+ * Number of retries for backOff function before throwing the error.
+ * @kind constant
+ */
 const MAX_TIMEOUT_COUNT = 10;
 /**
-* Starting delay in ms of exponential backoff. The pattern: 100,200,400,800...
-* @kind constant
-*/
+ * Starting delay in ms of exponential backoff. The pattern: 100,200,400,800...
+ * @kind constant
+ */
 const START_TIMEOUT_TIME = 100;
-
 
 /**
  * Exponential backoff wrapper for google API
@@ -56,7 +55,6 @@ function backOff(fn) {
   return tryOnce;
 }
 
-
 /**
  * Get account summaries.
  * Returns an array of summaries for accounts. (all accounts and properties). Do not return profiles.
@@ -65,10 +63,9 @@ function backOff(fn) {
  */
 function getAccountSummaries({ from }) {
   const { oauth2Client: auth } = from;
-  return analytics.management
-                  .accountSummaries
-                  .list({ auth })
-                  .then(({ data }) => ({from, summaries: data.items}))
+  return analytics.management.accountSummaries
+    .list({ auth })
+    .then(({ data }) => ({ from, summaries: data.items }));
 }
 
 /**
@@ -79,14 +76,10 @@ function getAccountSummaries({ from }) {
  */
 function getAccounts({ from }) {
   const { oauth2Client: auth } = from;
-  return analytics.management
-                  .accounts
-                  .list({ auth })
-                  .then(({ data }) => ({from, accounts: data.items}))
+  return analytics.management.accounts
+    .list({ auth })
+    .then(({ data }) => ({ from, accounts: data.items }));
 }
-
-
-
 
 /**
  * Get web properties data.
@@ -96,12 +89,10 @@ function getAccounts({ from }) {
  */
 function getWebProperties({ from }) {
   const { oauth2Client: auth, accountId } = from;
-  return analytics.management
-                  .webproperties
-                  .list({ auth, accountId })
-                  .then(({ data }) => ({from, webProperties: data.items}))
+  return analytics.management.webproperties
+    .list({ auth, accountId })
+    .then(({ data }) => ({ from, webProperties: data.items }));
 }
-
 
 /**
  * Get views from web property.
@@ -111,14 +102,10 @@ function getWebProperties({ from }) {
  */
 function getViews({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId } = from;
-  return analytics.management
-                  .profiles
-                  .list({ auth, accountId, webPropertyId })
-                  .then(({ data }) => ({from, views: data.items}))
+  return analytics.management.profiles
+    .list({ auth, accountId, webPropertyId })
+    .then(({ data }) => ({ from, views: data.items }));
 }
-
-
-
 
 function getGoals({ from }) {
   return new Promise((resolve, reject) => {
@@ -137,12 +124,6 @@ function getGoals({ from }) {
   });
 }
 
-
-
-
-
-
-
 function getWebProperty({ from }) {
   return new Promise((resolve, reject) => {
     analytics.management.webproperties.get(
@@ -158,9 +139,6 @@ function getWebProperty({ from }) {
     );
   });
 }
-
-
-
 
 function insertWebProperty({ to, webProperty }) {
   return new Promise((resolve, reject) => {
@@ -236,8 +214,6 @@ function insertGoals({ to, goal }) {
   });
 }
 
-
-
 function insertDimensions({ to, dimension }) {
   return new Promise((resolve, reject) => {
     analytics.management.customDimensions.insert(
@@ -292,7 +268,6 @@ function getDimensions({ from }) {
   });
 }
 
-
 function insertMetrics({ to, metrics }) {
   return new Promise((resolve, reject) => {
     analytics.management.customMetrics.insert(
@@ -346,8 +321,6 @@ function getMetrics({ from }) {
   });
 }
 
-
-
 function getHostNames({ from }) {
   return new Promise((resolve, reject) => {
     let today = new Date();
@@ -396,7 +369,6 @@ function getHostName({ from }) {
     );
   });
 }
-
 
 function filterMax(result, item) {
   if (!result || +result[1] < +item[1]) return item;
@@ -450,15 +422,11 @@ function parseGoogleDate(dateString) {
   return `${date.getDate()} ${monthNames[date.getMonth()]}`;
 }
 
-
 module.exports = {
   getAccountSummaries: backOff(getAccountSummaries),
   getAccounts: backOff(getAccounts),
   getWebProperties: backOff(getWebProperties),
   getViews: backOff(getViews),
-
-
-
 
   insertWebProperty: backOff(insertWebProperty),
   insertViewId: backOff(insertViewId),
@@ -468,7 +436,6 @@ module.exports = {
   insertMetrics: backOff(insertMetrics),
   patchMetrics: backOff(patchMetrics),
   getMetrics: backOff(getMetrics),
-
 
   getWebProperty: backOff(getWebProperty),
 
@@ -481,33 +448,32 @@ module.exports = {
   backOff: backOff
 };
 
+/**
+ *  @typedef FromRoot
+ *  @type {object}
+ *  @property {object} oauth2Client - oauth2Client
+ */
 
 /**
-*  @typedef FromRoot
-*  @type {object}
-*  @property {object} oauth2Client - oauth2Client
-*/
+ *  @typedef FromAccount
+ *  @type {object}
+ *  @property {object} oauth2Client - oauth2Client
+ *  @property {string} accountId - accountId
+ */
 
 /**
-*  @typedef FromAccount
-*  @type {object}
-*  @property {object} oauth2Client - oauth2Client
-*  @property {string} accountId - accountId
-*/
+ *  @typedef FromWebProperty
+ *  @type {object}
+ *  @property {object} oauth2Client - oauth2Client authenticated client
+ *  @property {string} accountId - accountId
+ *  @property {string} webPropertyId - webPropertyId
+ */
 
 /**
-*  @typedef FromWebProperty
-*  @type {object}
-*  @property {object} oauth2Client - oauth2Client authenticated client
-*  @property {string} accountId - accountId
-*  @property {string} webPropertyId - webPropertyId
-*/
-
-/**
-*  @typedef FromProfile
-*  @type {object}
-*  @property {object} oauth2Client - oauth2Client authenticated client
-*  @property {string} accountId - accountId
-*  @property {string} webPropertyId - webPropertyId
-*  @property {string} profileId - profileId
-*/
+ *  @typedef FromProfile
+ *  @type {object}
+ *  @property {object} oauth2Client - oauth2Client authenticated client
+ *  @property {string} accountId - accountId
+ *  @property {string} webPropertyId - webPropertyId
+ *  @property {string} profileId - profileId
+ */

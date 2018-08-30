@@ -13,14 +13,9 @@
     "release-pub": "node ./node_modules/release-flow/lib/cli.js publish",
     "prettier": "node ./node_modules/prettier/bin-prettier.js --write **/*.js **/**/*.js **/**/**/*.js !./node_modules/**",
     "flow:check": "node node_modules/flow-bin/cli.js check .",
+    "precommit": "npm run flow:check && pretty-quick --staged",
     "jsdoc": "node ./node_modules/jsdoc-to-markdown/bin/cli.js --files ./**/* ./* > API.md",
     "release-fin": "node ./node_modules/release-flow/lib/cli.js finish"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run flow:check && pretty-quick --staged",
-      "pre-push": "npm test"
-    }
   },
   "author": "Eldar Djafarov <djkojb@gmail.com>",
   "license": "MIT",
