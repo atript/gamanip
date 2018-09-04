@@ -121,11 +121,11 @@ function getWebProperties({ from }) {
  */
 function getWebProperty({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId } = from;
-  return analytics.management.webproperties.get({ auth, accountId, webPropertyId })
+  return analytics.management.webproperties
+    .get({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, webProperty: data }))
     .catch(errorHandler);
 }
-
 
 /**
  * Get web property data.
@@ -140,7 +140,8 @@ function getWebProperty({ from }) {
  */
 function insertWebProperty({ to, webProperty }) {
   const { oauth2Client: auth, accountId } = to;
-  return analytics.management.webproperties.insert({ auth, accountId })
+  return analytics.management.webproperties
+    .insert({ auth, accountId })
     .then(({ data }) => ({ to, webProperty: data }))
     .catch(errorHandler);
 }
@@ -158,7 +159,8 @@ function insertWebProperty({ to, webProperty }) {
  */
 function getDimensions({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId } = from;
-  return analytics.management.customDimensions.list({ auth, accountId, webPropertyId })
+  return analytics.management.customDimensions
+    .list({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, dimensions: data.items }))
     .catch(errorHandler);
 }
@@ -177,14 +179,15 @@ function getDimensions({ from }) {
  */
 function insertDimensions({ to, dimension }) {
   const { oauth2Client: auth, accountId, webPropertyId } = to;
-  return analytics.management.customDimensions.insert({
-        auth,
-        accountId,
-        webPropertyId,
-        resource: dimension
-      })
-      .then(({ data }) => ({ from, dimension: data }))
-      .catch(errorHandler);
+  return analytics.management.customDimensions
+    .insert({
+      auth,
+      accountId,
+      webPropertyId,
+      resource: dimension
+    })
+    .then(({ data }) => ({ from, dimension: data }))
+    .catch(errorHandler);
 }
 /**
  * Patch dimension to a view.
@@ -201,15 +204,16 @@ function insertDimensions({ to, dimension }) {
 function patchDimensions({ to, dimension }) {
   const { oauth2Client: auth, accountId, webPropertyId, profileId } = to;
   const { id: customDimensionId } = dimension;
-  return analytics.management.customDimensions.patch({
-        auth,
-        accountId,
-        webPropertyId,
-        customDimensionId,
-        resource: dimension
-      })
-      .then(({ data }) => ({ from, dimension: data }))
-      .catch(errorHandler);
+  return analytics.management.customDimensions
+    .patch({
+      auth,
+      accountId,
+      webPropertyId,
+      customDimensionId,
+      resource: dimension
+    })
+    .then(({ data }) => ({ from, dimension: data }))
+    .catch(errorHandler);
 }
 
 /**
@@ -225,11 +229,11 @@ function patchDimensions({ to, dimension }) {
  */
 function getMetrics({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId } = from;
-  return analytics.management.customMetrics.list({ auth, accountId, webPropertyId })
+  return analytics.management.customMetrics
+    .list({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, metrics: data.items }))
     .catch(errorHandler);
 }
-
 
 /**
  * Insert metric to a view.
@@ -244,14 +248,15 @@ function getMetrics({ from }) {
  */
 function insertMetrics({ to, metric }) {
   const { oauth2Client: auth, accountId, webPropertyId } = to;
-  return analytics.management.customMetrics.insert({
-        auth,
-        accountId,
-        webPropertyId,
-        resource: metric
-      })
-      .then(({ data }) => ({ from, metric: data }))
-      .catch(errorHandler);
+  return analytics.management.customMetrics
+    .insert({
+      auth,
+      accountId,
+      webPropertyId,
+      resource: metric
+    })
+    .then(({ data }) => ({ from, metric: data }))
+    .catch(errorHandler);
 }
 /**
  * Patch metric to a view.
@@ -267,17 +272,17 @@ function insertMetrics({ to, metric }) {
 function patchMetrics({ to, metric }) {
   const { oauth2Client: auth, accountId, webPropertyId } = to;
   const { id: customMetricId } = metric;
-  return analytics.management.customMetrics.patch({
-        auth,
-        accountId,
-        webPropertyId,
-        customMetricId,
-        resource: metric
-      })
-      .then(({ data }) => ({ from, metric: data }))
-      .catch(errorHandler);
+  return analytics.management.customMetrics
+    .patch({
+      auth,
+      accountId,
+      webPropertyId,
+      customMetricId,
+      resource: metric
+    })
+    .then(({ data }) => ({ from, metric: data }))
+    .catch(errorHandler);
 }
-
 
 /**
  * Get views from web property.
@@ -312,15 +317,16 @@ function getViews({ from }) {
  */
 function getView({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId, profileId, quotaUser } = from;
-  return analytics.management.profiles.get({
-        auth,
-        accountId,
-        webPropertyId,
-        quotaUser,
-        profileId
-      })
-      .then(({ data }) => ({ from, view: data }))
-      .catch(errorHandler);
+  return analytics.management.profiles
+    .get({
+      auth,
+      accountId,
+      webPropertyId,
+      quotaUser,
+      profileId
+    })
+    .then(({ data }) => ({ from, view: data }))
+    .catch(errorHandler);
 }
 
 /**
@@ -337,15 +343,15 @@ function getView({ from }) {
  */
 function insertView({ to, view }) {
   const { oauth2Client: auth, accountId, webPropertyId, quotaUser } = to;
-  return new Promise((resolve, reject) => {
-    analytics.management.profiles.insert({
-        auth,
-        accountId,
-        webPropertyId,
-        resource: view
-      })
-      .then(({ data }) => ({ from, view: data }))
-      .catch(errorHandler);
+  return analytics.management.profiles
+    .insert({
+      auth,
+      accountId,
+      webPropertyId,
+      resource: view
+    })
+    .then(({ data }) => ({ from, view: data }))
+    .catch(errorHandler);
 }
 
 /**
@@ -362,17 +368,17 @@ function insertView({ to, view }) {
  */
 function getGoals({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId, profileId, quotaUser } = from;
-  return analytics.management.goals.list({
-        auth,
-        accountId,
-        webPropertyId,
-        quotaUser,
-        profileId
-      })
-      .then(({ data }) => ({ from, goals: data.items }))
-      .catch(errorHandler);
+  return analytics.management.goals
+    .list({
+      auth,
+      accountId,
+      webPropertyId,
+      quotaUser,
+      profileId
+    })
+    .then(({ data }) => ({ from, goals: data.items }))
+    .catch(errorHandler);
 }
-
 
 /**
  * Insert goal to a view.
@@ -388,15 +394,16 @@ function getGoals({ from }) {
  */
 function insertGoals({ to, goal }) {
   const { oauth2Client: auth, accountId, webPropertyId, profileId } = to;
-  return analytics.management.goals.insert({
-        auth,
-        accountId,
-        webPropertyId,
-        profileId,
-        resource: goal
-      })
-      .then(({ data }) => ({ from, goal: data }))
-      .catch(errorHandler);
+  return analytics.management.goals
+    .insert({
+      auth,
+      accountId,
+      webPropertyId,
+      profileId,
+      resource: goal
+    })
+    .then(({ data }) => ({ from, goal: data }))
+    .catch(errorHandler);
 }
 
 /*
@@ -439,16 +446,15 @@ function ReferenceObject() {
   let referenceObject = {};
   this.account = ({ id }) => {
     referenceObject.accountId = id;
-  }
+  };
   this.webProperty = ({ id }) => {
-    referenceObject = {...referenceObject,  webProperty: { id }, webPropertyId: id }
-  }
-  this.view = ({},/*goals*/[],/*filters*/[]) => {
-    referenceObject = {...referenceObject,  webProperty: { id }, webPropertyId: id }
-  }
+    referenceObject = { ...referenceObject, webProperty: { id }, webPropertyId: id };
+  };
+  this.view = ({}, /*goals*/ [], /*filters*/ []) => {
+    referenceObject = { ...referenceObject, webProperty: { id }, webPropertyId: id };
+  };
   return this;
 }
-
 
 function make({ oauth2Client, referenceObject }) {
   //if !webPropertyId - insert web property
