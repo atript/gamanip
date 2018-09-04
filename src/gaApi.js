@@ -5,7 +5,8 @@
 const { google } = require('googleapis');
 const analytics = google.analytics('v3');
 const webmasters = google.webmasters('v3');
-const errors = require('../../errors');
+const errors = require('./errors');
+const { errorHandler } = errors;
 /**
  * Number of retries for backOff function before throwing the error.
  * @kind constant
@@ -68,7 +69,8 @@ function getAccountSummaries({ from }) {
   const { oauth2Client: auth } = from;
   return analytics.management.accountSummaries
     .list({ auth })
-    .then(({ data }) => ({ from, summaries: data.items }));
+    .then(({ data }) => ({ from, summaries: data.items }))
+    .catch(errorHandler);
 }
 
 /**
@@ -84,7 +86,8 @@ function getAccounts({ from }) {
   const { oauth2Client: auth } = from;
   return analytics.management.accounts
     .list({ auth })
-    .then(({ data }) => ({ from, accounts: data.items }));
+    .then(({ data }) => ({ from, accounts: data.items }))
+    .catch(errorHandler);
 }
 
 /**
@@ -101,8 +104,180 @@ function getWebProperties({ from }) {
   const { oauth2Client: auth, accountId } = from;
   return analytics.management.webproperties
     .list({ auth, accountId })
-    .then(({ data }) => ({ from, webProperties: data.items }));
+    .then(({ data }) => ({ from, webProperties: data.items }))
+    .catch(errorHandler);
 }
+
+/**
+ * Get web property data.
+ * Returns an array of web properties.
+ * @param query
+ * @param query.from { FromWebProperty }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of web  in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down webProperty along with the origin
+ */
+function getWebProperty({ from }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = from;
+  return analytics.management.webproperties.get({ auth, accountId, webPropertyId })
+    .then(({ data }) => ({ from, webProperty: data }))
+    .catch(errorHandler);
+}
+
+
+/**
+ * Get web property data.
+ * Returns an array of web properties.
+ * @param query
+ * @param query.from { FromWebProperty }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.webProperty { object } the id of web  in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down webProperty along with the origin
+ */
+function insertWebProperty({ to, webProperty }) {
+  const { oauth2Client: auth, accountId } = to;
+  return analytics.management.webproperties.insert({ auth, accountId })
+    .then(({ data }) => ({ to, webProperty: data }))
+    .catch(errorHandler);
+}
+
+/**
+ * Get dimensions data.
+ * Returns an array of dimensions.
+ * @param query
+ * @param query.from { FromWebProperty }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of web  in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down dimentsions along with the origin
+ */
+function getDimensions({ from }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = from;
+  return analytics.management.customDimensions.list({ auth, accountId, webPropertyId })
+    .then(({ data }) => ({ from, dimensions: data.items }))
+    .catch(errorHandler);
+}
+
+/**
+ * Insert dimension to a view.
+ * Returns a created dimension.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.dimension { object } the dimension
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, dimension: Object }} - pass down dimension along with the origin
+ */
+function insertDimensions({ to, dimension }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = to;
+  return analytics.management.customDimensions.insert({
+        auth,
+        accountId,
+        webPropertyId,
+        resource: dimension
+      })
+      .then(({ data }) => ({ from, dimension: data }))
+      .catch(errorHandler);
+}
+/**
+ * Patch dimension to a view.
+ * Returns a created dimension.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.dimension { object } the dimension
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, dimension: Object }} - pass down dimension along with the origin
+ */
+function patchDimensions({ to, dimension }) {
+  const { oauth2Client: auth, accountId, webPropertyId, profileId } = to;
+  const { id: customDimensionId } = dimension;
+  return analytics.management.customDimensions.patch({
+        auth,
+        accountId,
+        webPropertyId,
+        customDimensionId,
+        resource: dimension
+      })
+      .then(({ data }) => ({ from, dimension: data }))
+      .catch(errorHandler);
+}
+
+/**
+ * Get metrics data.
+ * Returns an array of metrics.
+ * @param query
+ * @param query.from { FromWebProperty }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of web  in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down metrics along with the origin
+ */
+function getMetrics({ from }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = from;
+  return analytics.management.customMetrics.list({ auth, accountId, webPropertyId })
+    .then(({ data }) => ({ from, metrics: data.items }))
+    .catch(errorHandler);
+}
+
+
+/**
+ * Insert metric to a view.
+ * Returns a created metric.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, metric: Object }} - pass down metric along with the origin
+ */
+function insertMetrics({ to, metric }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = to;
+  return analytics.management.customMetrics.insert({
+        auth,
+        accountId,
+        webPropertyId,
+        resource: metric
+      })
+      .then(({ data }) => ({ from, metric: data }))
+      .catch(errorHandler);
+}
+/**
+ * Patch metric to a view.
+ * Returns a created metric.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, metric: Object }} - pass down metric along with the origin
+ */
+function patchMetrics({ to, metric }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = to;
+  const { id: customMetricId } = metric;
+  return analytics.management.customMetrics.patch({
+        auth,
+        accountId,
+        webPropertyId,
+        customMetricId,
+        resource: metric
+      })
+      .then(({ data }) => ({ from, metric: data }))
+      .catch(errorHandler);
+}
+
 
 /**
  * Get views from web property.
@@ -119,223 +294,191 @@ function getViews({ from }) {
   const { oauth2Client: auth, accountId, webPropertyId } = from;
   return analytics.management.profiles
     .list({ auth, accountId, webPropertyId })
-    .then(({ data }) => ({ from, views: data.items }));
+    .then(({ data }) => ({ from, views: data.items }))
+    .catch(errorHandler);
 }
 
-function getGoals({ from }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.goals.list(
-      {
-        accountId: from.gaAccountId,
-        profileId: from.profileId,
-        webPropertyId: from.webPropertyId,
-        auth: from.oauth2Client
-      },
-      (err, goals) => {
-        if (err) return reject(err);
-        resolve({ from, goals });
-      }
-    );
-  });
-}
-
-function getWebProperty({ from }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.webproperties.get(
-      {
-        auth: from.oauth2Client,
-        accountId: from.accountId,
-        webPropertyId: from.webPropertyId
-      },
-      (err, { data: webProperty }) => {
-        if (err) return reject(err);
-        resolve({ from, webProperty });
-      }
-    );
-  });
-}
-
-function insertWebProperty({ to, webProperty }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.webproperties.insert(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        quotaUser: to.gaAccountId,
-        resource: webProperty
-      },
-      (err, { data: newWebproperty }) => {
-        if (err) console.log(`insertWebProperty fail ${to.gaAccountId}`);
-        if (err) console.log(err);
-        if (err) return reject(err);
-        resolve({ to, webproperty: newWebproperty });
-      }
-    );
-  });
-}
-
+/**
+ * Get views from web property.
+ * Returns an array of views.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.from.profileId { string } the id of view in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, view: Object }} - pass down views along with the origin
+ */
 function getView({ from }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.profiles.get(
-      {
-        auth: from.oauth2Client,
-        accountId: from.gaAccountId,
-        webPropertyId: from.webPropertyId,
-        quotaUser: from.gaAccountId,
-        profileId: from.analyticsViewId
-      },
-      (err, { data: view }) => {
-        if (err) return reject(err);
-        resolve({ from, view });
-      }
-    );
-  });
+  const { oauth2Client: auth, accountId, webPropertyId, profileId, quotaUser } = from;
+  return analytics.management.profiles.get({
+        auth,
+        accountId,
+        webPropertyId,
+        quotaUser,
+        profileId
+      })
+      .then(({ data }) => ({ from, view: data }))
+      .catch(errorHandler);
 }
 
-function insertViewId({ to, view }) {
+/**
+ * Insert view to web property.
+ * Returns an array of views.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.view { object } the view
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, view: Object }} - pass down views along with the origin
+ */
+function insertView({ to, view }) {
+  const { oauth2Client: auth, accountId, webPropertyId, quotaUser } = to;
   return new Promise((resolve, reject) => {
-    analytics.management.profiles.insert(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        quotaUser: to.gaAccountId,
+    analytics.management.profiles.insert({
+        auth,
+        accountId,
+        webPropertyId,
         resource: view
-      },
-      (err, { data: view }) => {
-        if (err) return reject(err);
-        resolve({ to, view });
-      }
-    );
-  });
+      })
+      .then(({ data }) => ({ from, view: data }))
+      .catch(errorHandler);
 }
 
+/**
+ * Get goals from view.
+ * Returns an array of goals.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.from.profileId { string } the id of view in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, view: Object }} - pass down views along with the origin
+ */
+function getGoals({ from }) {
+  const { oauth2Client: auth, accountId, webPropertyId, profileId, quotaUser } = from;
+  return analytics.management.goals.list({
+        auth,
+        accountId,
+        webPropertyId,
+        quotaUser,
+        profileId
+      })
+      .then(({ data }) => ({ from, goals: data.items }))
+      .catch(errorHandler);
+}
+
+
+/**
+ * Insert goal to a view.
+ * Returns a created goal.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.from.profileId { string } the id of view in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, goal: Object }} - pass down goal along with the origin
+ */
 function insertGoals({ to, goal }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.goals.insert(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        profileId: to.profileId,
-        quotaUser: to.gaAccountId,
+  const { oauth2Client: auth, accountId, webPropertyId, profileId } = to;
+  return analytics.management.goals.insert({
+        auth,
+        accountId,
+        webPropertyId,
+        profileId,
         resource: goal
-      },
-      (err, { data: goal }) => {
-        if (err) return reject(err);
-        resolve({ to, goal });
-      }
-    );
-  });
+      })
+      .then(({ data }) => ({ from, goal: data }))
+      .catch(errorHandler);
 }
 
-function insertDimensions({ to, dimension }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customDimensions.insert(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        quotaUser: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        resource: dimension
+/*
+{
+  accountId,
+  webPropertyId,
+  webProperty: {
+    id:
+  },
+  customDimensions: [{
+    customDimension: {}
+    customDimensionId
+  }]
+  customMetrics: [{
+    customMetric: {}
+    customMetricId
+  }],
+  views: [
+    {
+      view: {
+        id
       },
-      (err, dimension) => {
-        if (err) return reject(err);
-        resolve({ to, dimension });
-      }
-    );
-  });
+      profileId,
+      goals: [],
+      filters: [{
+        name: '...',
+        unique: 'name'
+      }]
+    }
+  ]
 }
 
-function patchDimensions({ to, dimension }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customDimensions.patch(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        quotaUser: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        customDimensionId: dimension.id,
-        resource: dimension
-      },
-      (err, dimension) => {
-        if (err) return reject(err);
-        resolve({ to, dimension });
-      }
-    );
-  });
+ref = new RefObj(referenceObject)
+ref.account(id);
+ref.webProperty({})
+ref.view({view},[goals], [filters])
+
+*/
+function ReferenceObject() {
+  let referenceObject = {};
+  this.account = ({ id }) => {
+    referenceObject.accountId = id;
+  }
+  this.webProperty = ({ id }) => {
+    referenceObject = {...referenceObject,  webProperty: { id }, webPropertyId: id }
+  }
+  this.view = ({},/*goals*/[],/*filters*/[]) => {
+    referenceObject = {...referenceObject,  webProperty: { id }, webPropertyId: id }
+  }
+  return this;
 }
 
-function getDimensions({ from }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customDimensions.list(
-      {
-        auth: from.oauth2Client,
-        accountId: from.gaAccountId,
-        quotaUser: from.gaAccountId,
-        webPropertyId: from.webPropertyId
-      },
-      (err, { data = {} } = {}) => {
-        if (err) return reject(err);
-        resolve({ from, dimension: data.items });
-      }
-    );
-  });
+
+function make({ oauth2Client, referenceObject }) {
+  //if !webPropertyId - insert web property
+  //if webPropertyId
+  //  - if !webProperty - fail
+  //  - if webPropertydiff - patch
+  //customMetrics
+  // check customMetrics
+  // if(exists) diff/patch
+  // if(!exists) insert
+  //customDimensions
+  // check customDimensions
+  // if(exists) diff/patch
+  // if(!exists) insert
+  //if !profile - insert
+  //if profileId
+  //  - if !profile - fail
+  //  - if profilediff - patch
+  //goals
+  // check goals
+  // if(exists) diff/patch
+  // if(!exists) insert
 }
 
-function insertMetrics({ to, metrics }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customMetrics.insert(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        quotaUser: to.gaAccountId,
-        resource: metrics
-      },
-      (err, metrics) => {
-        if (err) return reject(err);
-        resolve({ to, metrics });
-      }
-    );
-  });
-}
-function patchMetrics({ to, metrics }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customMetrics.patch(
-      {
-        auth: to.oauth2Client,
-        accountId: to.gaAccountId,
-        webPropertyId: to.webPropertyId,
-        quotaUser: to.gaAccountId,
-        customMetricId: metrics.id,
-        resource: metrics
-      },
-      (err, metrics) => {
-        if (err) return reject(err);
-        resolve({ to, metrics });
-      }
-    );
-  });
-}
+//TODO: function getFilters
+//TODO: function cleanFilters
 
-function getMetrics({ from }) {
-  return new Promise((resolve, reject) => {
-    analytics.management.customMetrics.list(
-      {
-        auth: from.oauth2Client,
-        accountId: from.gaAccountId,
-        quotaUser: from.gaAccountId,
-        webPropertyId: from.webPropertyId
-      },
-      (err, metrics) => {
-        if (err) return reject(err);
-        resolve({ from, metrics });
-      }
-    );
-  });
-}
-
+//TODO: function get predictedNumberOfUrls
+//TODO: getHostNames
+/*
 function getHostNames({ from }) {
   return new Promise((resolve, reject) => {
     let today = new Date();
@@ -436,30 +579,28 @@ function parseGoogleDate(dateString) {
   );
   return `${date.getDate()} ${monthNames[date.getMonth()]}`;
 }
-
+*/
 module.exports = {
   getAccountSummaries: backOff(getAccountSummaries),
   getAccounts: backOff(getAccounts),
   getWebProperties: backOff(getWebProperties),
-  getViews: backOff(getViews),
-
+  getWebProperty: backOff(getWebProperty),
   insertWebProperty: backOff(insertWebProperty),
-  insertViewId: backOff(insertViewId),
-  insertGoals: backOff(insertGoals),
-  insertDimensions: backOff(insertDimensions),
-  patchDimensions: backOff(patchDimensions),
+  getMetrics: backOff(getMetrics),
   insertMetrics: backOff(insertMetrics),
   patchMetrics: backOff(patchMetrics),
-  getMetrics: backOff(getMetrics),
-
-  getWebProperty: backOff(getWebProperty),
-
-  getGoals: backOff(getGoals),
-  getView: backOff(getView),
   getDimensions: backOff(getDimensions),
+  insertDimensions: backOff(insertDimensions),
+  patchDimensions: backOff(patchDimensions),
+  getViews: backOff(getViews),
+  getView: backOff(getView),
+  insertView: backOff(insertView),
+  getGoals: backOff(getGoals),
+  insertGoals: backOff(insertGoals),
 
-  getHostName: backOff(getHostName),
-  getHostNames: backOff(getHostNames),
+  make: make,
+  //getHostName: backOff(getHostName),
+  //getHostNames: backOff(getHostNames),
   backOff: backOff
 };
 
