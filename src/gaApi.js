@@ -684,7 +684,7 @@ function make({ oauth2Client, referenceObject }) {
       .then(() => ({ from: { oauth2Client, accountId, webPropertyId } }))
       .then(getWebProperty)
       .then(({ webProperty: publishedWebProperty }) => {
-        //WHAT if hasn't found
+        //TODO: WHAT if hasn't found
         if (shouldBeChanged(publishedWebProperty, referenceObject.webProperty)) {
           return patchWebProperty({
             to: { oauth2Client, accountId, webPropertyId: referenceObject.webPropertyId },
@@ -807,7 +807,7 @@ function make({ oauth2Client, referenceObject }) {
               }))
               .then(getGoals);
           }
-          //TODO: disable goals that are not in config
+
           return goals
             .reduce((nextGoal, goal, goalIdx) => {
               return nextGoal.then(({ goals: existingGoals }) => {
@@ -848,14 +848,6 @@ function make({ oauth2Client, referenceObject }) {
         });
     }, pipe);
   }
-  //if !profile - insert
-  //if profileId
-  //  - if !profile - fail
-  //  - if profilediff - patch
-  //goals
-  // check goals
-  // if(exists) diff/patch
-  // if(!exists) insert
   return pipe;
 }
 

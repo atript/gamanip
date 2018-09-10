@@ -2,7 +2,7 @@
   "name": "gamanip",
   "version": "1.0.0",
   "description": "Google Analytics Data/Management Service/API",
-  "main": "index.js",
+  "main": "src/gaApi.js",
   "repository": {
     "url": "git@github.com:atript/gamanip.git",
     "type": "git"
