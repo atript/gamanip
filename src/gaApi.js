@@ -6,7 +6,7 @@ const { google } = require('googleapis');
 const analytics = google.analytics('v3');
 const webmasters = google.webmasters('v3');
 const errors = require('./errors');
-const { errorHandler } = errors;
+const { insertServiceError, GoogleAnalyticsError } = errors;
 /**
  * Number of retries for backOff function before throwing the error.
  * @kind constant
@@ -70,7 +70,8 @@ function getAccountSummaries({ from }) {
   return analytics.management.accountSummaries
     .list({ auth })
     .then(({ data }) => ({ from, summaries: data.items }))
-    .catch(errorHandler);
+    .catch((e) => console.log(e))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -87,7 +88,7 @@ function getAccounts({ from }) {
   return analytics.management.accounts
     .list({ auth })
     .then(({ data }) => ({ from, accounts: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -105,7 +106,7 @@ function getWebProperties({ from }) {
   return analytics.management.webproperties
     .list({ auth, accountId })
     .then(({ data }) => ({ from, webProperties: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -124,16 +125,16 @@ function getWebProperty({ from }) {
   return analytics.management.webproperties
     .get({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, webProperty: data }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
  * Get web property data.
  * Returns an array of web properties.
  * @param query
- * @param query.from { FromWebProperty }
- * @param query.from.oauth2Client { object } authenticated client
- * @param query.from.accountId { string } the id of account in GA
+ * @param query.to { FromWebProperty }
+ * @param query.to.oauth2Client { object } authenticated client
+ * @param query.to.accountId { string } the id of account in GA
  * @param query.webProperty { object } the id of web  in GA
  * @returns {Promise}
  * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down webProperty along with the origin
@@ -141,9 +142,29 @@ function getWebProperty({ from }) {
 function insertWebProperty({ to, webProperty }) {
   const { oauth2Client: auth, accountId } = to;
   return analytics.management.webproperties
-    .insert({ auth, accountId })
+    .insert({ auth, accountId, resource: webProperty })
     .then(({ data }) => ({ to, webProperty: data }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
+}
+
+/**
+ * Patch web property data.
+ * Returns an array of web properties.
+ * @param query
+ * @param query.to { FromWebProperty }
+ * @param query.to.oauth2Client { object } authenticated client
+ * @param query.to.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of web  in GA
+ * @param query.webProperty { object } the id of web  in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromWebProperty, webProperty: Object }} - pass down webProperty along with the origin
+ */
+function patchWebProperty({ to, webProperty }) {
+  const { oauth2Client: auth, accountId, webPropertyId } = to;
+  return analytics.management.webproperties
+    .patch({ auth, accountId, webPropertyId, resource: webProperty })
+    .then(({ data }) => ({ to, webProperty: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -162,7 +183,7 @@ function getDimensions({ from }) {
   return analytics.management.customDimensions
     .list({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, dimensions: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -186,8 +207,8 @@ function insertDimensions({ to, dimension }) {
       webPropertyId,
       resource: dimension
     })
-    .then(({ data }) => ({ from, dimension: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, dimension: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 /**
  * Patch dimension to a view.
@@ -212,8 +233,8 @@ function patchDimensions({ to, dimension }) {
       customDimensionId,
       resource: dimension
     })
-    .then(({ data }) => ({ from, dimension: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, dimension: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -232,7 +253,7 @@ function getMetrics({ from }) {
   return analytics.management.customMetrics
     .list({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, metrics: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -255,8 +276,8 @@ function insertMetrics({ to, metric }) {
       webPropertyId,
       resource: metric
     })
-    .then(({ data }) => ({ from, metric: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, metric: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 /**
  * Patch metric to a view.
@@ -280,8 +301,8 @@ function patchMetrics({ to, metric }) {
       customMetricId,
       resource: metric
     })
-    .then(({ data }) => ({ from, metric: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, metric: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -300,7 +321,7 @@ function getViews({ from }) {
   return analytics.management.profiles
     .list({ auth, accountId, webPropertyId })
     .then(({ data }) => ({ from, views: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -326,7 +347,7 @@ function getView({ from }) {
       profileId
     })
     .then(({ data }) => ({ from, view: data }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -350,8 +371,35 @@ function insertView({ to, view }) {
       webPropertyId,
       resource: view
     })
-    .then(({ data }) => ({ from, view: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, view: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
+}
+
+/**
+ * Patch view to web property.
+ * Returns an array of views.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.from.profileId { string } the id of profileId in GA
+ * @param query.view { object } the view
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, view: Object }} - pass down views along with the origin
+ */
+function patchView({ to, view }) {
+  const { oauth2Client: auth, accountId, webPropertyId, profileId, quotaUser } = to;
+  return analytics.management.profiles
+    .patch({
+      auth,
+      accountId,
+      webPropertyId,
+      profileId,
+      resource: view
+    })
+    .then(({ data }) => ({ to, view: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -377,7 +425,7 @@ function getGoals({ from }) {
       profileId
     })
     .then(({ data }) => ({ from, goals: data.items }))
-    .catch(errorHandler);
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /**
@@ -392,7 +440,7 @@ function getGoals({ from }) {
  * @returns {Promise}
  * @fulfil {{ from: FromProfile, goal: Object }} - pass down goal along with the origin
  */
-function insertGoals({ to, goal }) {
+function insertGoal({ to, goal }) {
   const { oauth2Client: auth, accountId, webPropertyId, profileId } = to;
   return analytics.management.goals
     .insert({
@@ -402,8 +450,34 @@ function insertGoals({ to, goal }) {
       profileId,
       resource: goal
     })
-    .then(({ data }) => ({ from, goal: data }))
-    .catch(errorHandler);
+    .then(({ data }) => ({ to, goal: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
+}
+/**
+ * Patch goal to a view.
+ * Returns a created goal.
+ * @param query
+ * @param query.from { FromProfile }
+ * @param query.from.oauth2Client { object } authenticated client
+ * @param query.from.accountId { string } the id of account in GA
+ * @param query.from.webPropertyId { string } the id of webProperty in GA
+ * @param query.from.profileId { string } the id of view in GA
+ * @returns {Promise}
+ * @fulfil {{ from: FromProfile, goal: Object }} - pass down goal along with the origin
+ */
+function patchGoal({ to, goal }) {
+  const { oauth2Client: auth, accountId, webPropertyId, profileId, goalId } = to;
+  return analytics.management.goals
+    .patch({
+      auth,
+      accountId,
+      webPropertyId,
+      profileId,
+      goalId,
+      resource: goal
+    })
+    .then(({ data }) => ({ to, goal: data }))
+    .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
 /*
@@ -442,33 +516,338 @@ ref.webProperty({})
 ref.view({view},[goals], [filters])
 
 */
-function ReferenceObject() {
-  let referenceObject = {};
-  this.account = ({ id }) => {
-    referenceObject.accountId = id;
+function ReferenceObject(referenceObject = {}) {
+  this.account = ({ id, accountId }) => {
+    referenceObject.accountId = id || accountId;
   };
-  this.webProperty = ({ id }) => {
-    referenceObject = { ...referenceObject, webProperty: { id }, webPropertyId: id };
+  this.webProperty = ({
+    id,
+    webPropertyId,
+    name,
+    websiteUrl,
+    industryVertical = 'UNSPECIFIED'
+  }) => {
+    id = id || webPropertyId || undefined;
+    referenceObject = {
+      ...referenceObject,
+      webProperty: { id, name, websiteUrl, industryVertical },
+      webPropertyId: id
+    };
   };
-  this.view = ({}, /*goals*/ [], /*filters*/ []) => {
-    referenceObject = { ...referenceObject, webProperty: { id }, webPropertyId: id };
+  this.view = (
+    { id, profileId, name, currency, timezone, websiteUrl, type = 'WEB', eCommerceTracking },
+    /*goals*/ goals = [],
+    /*filters*/ filters = []
+  ) => {
+    id = id || profileId || undefined;
+    let newView = {
+      view: { id, profileId, name, currency, timezone, websiteUrl, type, eCommerceTracking },
+      profileId: id,
+      goals: goals.map(({ active, type, eventDetails }) => ({ active, type, eventDetails })),
+      filters: filters.map(({ includeDetails, name, type, uniqueKey }) => ({
+        includeDetails,
+        name,
+        type,
+        uniqueKey
+      }))
+    };
+    referenceObject = { ...referenceObject, views: [...(referenceObject.views || []), newView] };
   };
+  this.customMetrics = (metrics = []) => {
+    referenceObject = {
+      ...referenceObject,
+      customMetrics: metrics.map(({ name, scope, active, type }) => ({ name, scope, active, type }))
+    };
+  };
+  this.customDimensions = (dimensions = []) => {
+    referenceObject = {
+      ...referenceObject,
+      customMetrics: dimensions.map(({ name, scope, active }) => ({ name, scope, active }))
+    };
+  };
+  this.toJson = () => referenceObject;
+  this.toString = () => JSON.stringify(referenceObject, null, 2);
   return this;
+}
+/*
+var ref = new ReferenceObject();
+ref.account({id: 1234});
+ref.webProperty({name: "NewAcc", websiteUrl:"http://someUrl"});
+ref.view({name: "New View", websiteUrl:"http://someUrl"});
+ref.view({name: "Another View", websiteUrl:"http://someUrl"});
+console.log(ref.toJson())
+*/
+/*
+{
+  "accountId": 1234,
+  "webProperty": {
+    "name": "NewAcc",
+    "websiteUrl": "http://someUrl",
+    "industryVertical": "UNSPECIFIED"
+  },
+  "views": [
+    {
+      "view": {
+        "name": "New View",
+        "websiteUrl": "http://someUrl",
+        "type": "WEB"
+      },
+      "goals": [],
+      "filters": []
+    },
+    {
+      "view": {
+        "name": "Another View",
+        "websiteUrl": "http://someUrl",
+        "type": "WEB"
+      },
+      "goals": [],
+      "filters": []
+    }
+  ]
+}
+*/
+//TODO: finish
+function shouldBeChanged(source, target) {
+  if (target === null) return false;
+  return !Object.keys(target).reduce((r, k) => {
+    if (!r) return r;
+    if (typeof target[k] !== 'object' && typeof target[k] !== 'array')
+      return target[k] === source[k];
+    if (typeof target[k] === 'array') return target[k].length === source[k].length;
+    if (typeof target[k] === 'object') return !shouldBeChanged(source[k] || {}, target[k]);
+    return false;
+  }, true);
+}
+
+function findWebPropertyByUniqueKey(key, value) {
+  return ({ webProperties }) => {
+    webProperties = webProperties.filter((wp) => wp[key] === webProperty[key]);
+    return webProperties.length > 0 ? { webProperty: webProperties[0] } : {};
+  };
+}
+function findViewByUniqueKey(key, value) {
+  return ({ views }) => {
+    views = views.filter((wp) => wp[key] === value);
+    return views.length > 0 ? { view: views[0] } : {};
+  };
 }
 
 function make({ oauth2Client, referenceObject }) {
-  //if !webPropertyId - insert web property
-  //if webPropertyId
-  //  - if !webProperty - fail
-  //  - if webPropertydiff - patch
-  //customMetrics
-  // check customMetrics
-  // if(exists) diff/patch
-  // if(!exists) insert
-  //customDimensions
-  // check customDimensions
-  // if(exists) diff/patch
-  // if(!exists) insert
+  let pipe = Promise.resolve(referenceObject);
+  let {
+    accountId,
+    webProperty,
+    webPropertyId,
+    customMetrics,
+    customDimensions,
+    views
+  } = referenceObject;
+  if (!accountId) return Promise.reject(new ServiceError(412, `accountId should be defined`));
+
+  if (!webPropertyId && webProperty.uniqueKey) {
+    console.log(`!webPropertyId && webProperty.uniqueKey`);
+    pipe = pipe
+      .then(() => ({ from: { oauth2Client, accountId } }))
+      .then(getWebProperties)
+      .then(findWebPropertyByUniqueKey(webProperty.uniqueKey, webProperty))
+      .then(({ webProperty: publishedWebProperty }) => {
+        //TODO: if not found
+        webPropertyId = publishedWebProperty.id;
+        referenceObject.webPropertyId = publishedWebProperty.id;
+        referenceObject.webProperty.id = publishedWebProperty.id;
+        //make a diff and patch if required
+        if (shouldBeChanged(publishedWebProperty, referenceObject.webProperty)) {
+          return patchWebProperty({
+            to: { oauth2Client, accountId, webPropertyId: referenceObject.webPropertyId },
+            webProperty: referenceObject.webProperty
+          });
+        }
+        return { webProperty: referenceObject.webProperty };
+      });
+  }
+  if (!webPropertyId && !webProperty.uniqueKey) {
+    console.log(`!webPropertyId && !webProperty.unique`);
+    pipe = pipe
+      .then(() => ({ to: { oauth2Client, accountId }, webProperty }))
+      .then(insertWebProperty)
+      .then(({ webProperty: newWebProperty }) => {
+        //add changes to referenceObject
+        webPropertyId = newWebProperty.id;
+        referenceObject.webPropertyId = newWebProperty.id;
+        referenceObject.webProperty.id = newWebProperty.id;
+        return { webProperty: newWebProperty };
+      });
+  }
+  if (webPropertyId) {
+    pipe = pipe
+      .then(() => ({ from: { oauth2Client, accountId, webPropertyId } }))
+      .then(getWebProperty)
+      .then(({ webProperty: publishedWebProperty }) => {
+        //WHAT if hasn't found
+        if (shouldBeChanged(publishedWebProperty, referenceObject.webProperty)) {
+          return patchWebProperty({
+            to: { oauth2Client, accountId, webPropertyId: referenceObject.webPropertyId },
+            webProperty: referenceObject.webProperty
+          });
+        }
+        return { webProperty: referenceObject.webProperty };
+      });
+  }
+  if (customMetrics) {
+    pipe = pipe
+      .then(() => ({ from: { oauth2Client, accountId, webPropertyId } }))
+      .then(getMetrics)
+      .then(({ metrics: existingMetrics }) => {
+        return customMetrics.reduce((nextMetric, metric, metricIdx) => {
+          return nextMetric.then(() => {
+            if (existingMetrics[metricIdx] && shouldBeChanged(existingMetrics[metricIdx], metric)) {
+              console.log('patch metric');
+              metric.id = `ga:metric${metricIdx + 1}`;
+              metric.index = metricIdx + 1;
+              return patchMetrics({
+                to: { oauth2Client, accountId, webPropertyId, customMetricId: metric.id },
+                metric
+              }).then(({ metric: newMetric }) => (metric.id = newMetric.id));
+            }
+            if (!existingMetrics[metricIdx]) {
+              console.log('insert metric');
+              metric.id = `ga:metric${metricIdx + 1}`;
+              metric.index = metricIdx + 1;
+              return insertMetrics({ to: { oauth2Client, accountId, webPropertyId }, metric }).then(
+                ({ metric: newMetric }) => (metric.id = newMetric.id)
+              );
+            }
+            return true;
+          });
+        }, Promise.resolve());
+      });
+  }
+  if (customDimensions) {
+    pipe = pipe
+      .then(() => ({ from: { oauth2Client, accountId, webPropertyId } }))
+      .then(getDimensions)
+      .then(({ dimensions: existingDimensions }) => {
+        return customDimensions.reduce((nextDimension, dimension, dimensionIdx) => {
+          return nextDimension.then(() => {
+            if (
+              existingDimensions[dimensionIdx] &&
+              shouldBeChanged(existingDimensions[dimensionIdx], dimension)
+            ) {
+              console.log('patch dimension');
+              dimension.id = `ga:dimension${dimensionIdx + 1}`;
+              dimension.index = dimensionIdx + 1;
+              return patchDimensions({
+                to: { oauth2Client, accountId, webPropertyId, customDimensionId: dimension.id },
+                dimension
+              }).then(({ dimension: newDimension }) => (dimension.id = newDimension.id));
+            }
+            if (!existingDimensions[dimensionIdx]) {
+              console.log('insert dimension');
+              dimension.id = `ga:dimension${dimensionIdx + 1}`;
+              dimension.index = dimensionIdx + 1;
+              return insertDimensions({
+                to: { oauth2Client, accountId, webPropertyId },
+                dimension
+              }).then(({ dimension: newDimension }) => (dimension.id = newDimension.id));
+            }
+            return true;
+          });
+        }, Promise.resolve());
+        //for each dimension, diff and patch/insert
+      });
+  }
+  if (views.length > 0) {
+    const hasUnique = views.reduce((r, { view }) => r || view.uniqueKey, false);
+    const hasId = views.reduce((r, { view }) => r || !!view.id, false);
+    if (hasUnique || hasId) {
+      pipe = pipe.then(() => ({ from: { oauth2Client, accountId, webPropertyId } })).then(getViews);
+    }
+    pipe = views.reduce((next, { view, goals = [], filters = [] }) => {
+      return next
+        .then(({ views: existingViews = [] } = {}) => {
+          //for each view, diff and patch/insert
+          if (!view.id && view.uniqueKey) {
+            const { view: foundView } = findViewByUniqueKey(view.uniqueKey, view)({
+              views: existingViews
+            });
+            return; //TODO: if not found
+          }
+          if (!view.id && !view.uniqueKey) {
+            console.log('insert view');
+            return insertView({ to: { oauth2Client, accountId, webPropertyId }, view })
+              .then(({ view: newView }) => (view.id = newView.id))
+              .then(() => ({ views: existingViews }));
+          }
+          if (view.id) {
+            //if view id
+            const ids = existingViews.map((v) => v.id);
+            if (!!~ids.indexOf(view.id)) {
+              const foundExistingView = existingViews[ids.indexOf(view.id)];
+              if (shouldBeChanged(foundExistingView, view)) {
+                console.log('patch view');
+                return patchView({
+                  to: { oauth2Client, accountId, webPropertyId, profileId: view.id },
+                  view
+                }).then(() => ({ views: existingViews }));
+              }
+              return { views: existingViews };
+            }
+            //TODO: hasn't found
+            return { views: existingViews };
+          }
+          return { views: existingViews };
+        })
+        .then(({ views: existingViews }) => {
+          let goalsPipe = Promise.resolve([]);
+          if (goals.length > 0) {
+            goalsPipe = goalsPipe
+              .then(() => ({
+                from: { oauth2Client, accountId, webPropertyId, profileId: view.id }
+              }))
+              .then(getGoals);
+          }
+          //TODO: disable goals that are not in config
+          return goals
+            .reduce((nextGoal, goal, goalIdx) => {
+              return nextGoal.then(({ goals: existingGoals }) => {
+                if (existingGoals[goalIdx] && shouldBeChanged(existingGoals[goalIdx], goal)) {
+                  console.log('patch goal');
+                  goal.id = goalIdx + 1;
+                  return patchGoal({
+                    to: {
+                      oauth2Client,
+                      accountId,
+                      webPropertyId,
+                      profileId: view.id,
+                      goalId: goal.id
+                    },
+                    goal
+                  })
+                    .then(({ goal: newGoal }) => (goal.id = newGoal.id))
+                    .then(() => ({ goals: existingGoals }));
+                }
+                if (!existingGoals[goalIdx]) {
+                  console.log('insert goal');
+                  goal.id = goalIdx + 1;
+                  return insertGoal({
+                    to: { oauth2Client, accountId, webPropertyId, profileId: view.id },
+                    goal
+                  })
+                    .then(({ goal: newGoal }) => (goal.id = newGoal.id))
+                    .then(() => ({ goals: existingGoals }));
+                }
+                return { goals: existingGoals };
+              });
+            }, goalsPipe)
+            .then(() => ({ views: existingViews }));
+        })
+        .then(({ views: existingViews }) => {
+          //TODO: implement filters
+          return { views: existingViews };
+        });
+    }, pipe);
+  }
   //if !profile - insert
   //if profileId
   //  - if !profile - fail
@@ -477,6 +856,7 @@ function make({ oauth2Client, referenceObject }) {
   // check goals
   // if(exists) diff/patch
   // if(!exists) insert
+  return pipe;
 }
 
 //TODO: function getFilters
@@ -602,7 +982,7 @@ module.exports = {
   getView: backOff(getView),
   insertView: backOff(insertView),
   getGoals: backOff(getGoals),
-  insertGoals: backOff(insertGoals),
+  insertGoal: backOff(insertGoal),
 
   make: make,
   //getHostName: backOff(getHostName),
