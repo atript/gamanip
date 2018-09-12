@@ -70,7 +70,6 @@ function getAccountSummaries({ from }) {
   return analytics.management.accountSummaries
     .list({ auth })
     .then(({ data }) => ({ from, summaries: data.items }))
-    .catch((e) => console.log(e))
     .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
@@ -562,7 +561,7 @@ function ReferenceObject(referenceObject = {}) {
   this.customDimensions = (dimensions = []) => {
     referenceObject = {
       ...referenceObject,
-      customMetrics: dimensions.map(({ name, scope, active }) => ({ name, scope, active }))
+      customDimensions: dimensions.map(({ name, scope, active }) => ({ name, scope, active }))
     };
   };
   this.toJson = () => referenceObject;
