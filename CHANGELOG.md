@@ -1,3 +1,11 @@
+<a name="v1.1.2"></a>
+
+# [v1.1.2](https://github.com/atript/gamanip/compare/v1.1.1...v1.1.2)
+
+## Fixes
+
+- minor fixes ([19d9731](https://github.com/atript/gamanip/commits/19d97311510d8a686e710c8ca6c48f56cf69aa07))
+
 <a name="v1.1.1"></a>
 
 # [v1.1.1](https://github.com/atript/gamanip/compare/v1.1.0...v1.1.1)
