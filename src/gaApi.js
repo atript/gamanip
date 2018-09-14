@@ -519,22 +519,20 @@ function ReferenceObject(referenceObject = {}) {
   this.account = ({ id, accountId }) => {
     referenceObject.accountId = id || accountId;
   };
-  this.webProperty = ({
-    id,
-    webPropertyId,
-    name,
-    websiteUrl,
-    industryVertical = 'UNSPECIFIED'
-  }) => {
+  this.webProperty = ({ id, webPropertyId, name, websiteUrl, industryVertical }) => {
     id = id || webPropertyId || undefined;
+    let webProperty = { id };
+    if (name) webProperty.name = name;
+    if (name) webProperty.websiteUrl = websiteUrl;
+    if (name) webProperty.industryVertical = industryVertical;
     referenceObject = {
       ...referenceObject,
-      webProperty: { id, name, websiteUrl, industryVertical },
+      webProperty: webProperty,
       webPropertyId: id
     };
   };
   this.view = (
-    { id, profileId, name, currency, timezone, websiteUrl, type = 'WEB', eCommerceTracking },
+    { id, profileId, name, currency, timezone, websiteUrl, type, eCommerceTracking },
     /*goals*/ goals = [],
     /*filters*/ filters = []
   ) => {
@@ -756,7 +754,7 @@ function make({ oauth2Client, referenceObject }) {
         //for each dimension, diff and patch/insert
       });
   }
-  if (views.length > 0) {
+  if (views && views.length > 0) {
     const hasUnique = views.reduce((r, { view }) => r || view.uniqueKey, false);
     const hasId = views.reduce((r, { view }) => r || !!view.id, false);
     if (hasUnique || hasId) {
