@@ -975,6 +975,7 @@ module.exports = {
   getGoals: backOff(getGoals),
   insertGoal: backOff(insertGoal),
 
+  ReferenceObject: ReferenceObject,
   make: make,
   //getHostName: backOff(getHostName),
   //getHostNames: backOff(getHostNames),
