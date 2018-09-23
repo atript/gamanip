@@ -28,6 +28,7 @@
     "release-flow": "^1.2.1"
   },
   "dependencies": {
+    "batchelor": "^2.0.2",
     "googleapis": "^33.0.0"
   }
 }

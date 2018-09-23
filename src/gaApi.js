@@ -3,6 +3,7 @@
  * @module gamanip
  */
 const { google } = require('googleapis');
+const Batchelor = require('batchelor');
 const analytics = google.analytics('v3');
 const webmasters = google.webmasters('v3');
 const errors = require('./errors');
@@ -479,6 +480,34 @@ function patchGoal({ to, goal }) {
     .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
 
+function insertDimensionsBatch({ to, dimension }) {
+  dimension.quotaUser = to.accountId;
+  return Object.assign({
+    method: 'POST',
+    path: `/analytics/v3/management/accounts/${to.accountId}/webproperties/${
+      to.webPropertyId
+    }/customDimensions`,
+    parameters: {
+      'Content-Type': 'application/json;',
+      body: dimension,
+      quotaUser: to.accountId
+    }
+  });
+}
+function insertPatchDimensionsBatch({ to, dimension }) {
+  dimension.quotaUser = to.accountId;
+  return Object.assign({
+    method: 'PATCH',
+    path: `/analytics/v3/management/accounts/${to.accountId}/webproperties/${
+      to.webPropertyId
+    }/customDimensions/${dimension.id}`,
+    parameters: {
+      'Content-Type': 'application/json;',
+      body: dimension,
+      quotaUser: to.accountId
+    }
+  });
+}
 /*
 {
   accountId,
@@ -631,7 +660,23 @@ function findViewByUniqueKey(key, value) {
 }
 
 function make({ oauth2Client, referenceObject }) {
-  let pipe = Promise.resolve(referenceObject);
+  let batch;
+
+  let pipe = Promise.resolve();
+  pipe = pipe.then(() => oauth2Client.refreshAccessToken()).then((a) => {
+    batch = new Batchelor({
+      uri: 'https://www.googleapis.com/batch',
+      method: 'POST',
+      auth: {
+        bearer: oauth2Client.credentials.access_token
+      },
+      headers: {
+        'Content-Type': 'multipart/mixed'
+      }
+    });
+    return referenceObject;
+  });
+
   let {
     accountId,
     webProperty,
@@ -725,13 +770,126 @@ function make({ oauth2Client, referenceObject }) {
       .then(() => ({ from: { oauth2Client, accountId, webPropertyId } }))
       .then(getDimensions)
       .then(({ dimensions: existingDimensions }) => {
+        return batchDimensions({ existingDimensions, customDimensions });
+      });
+    /*
+      .then(({ dimensions: existingDimensions }) => {
+          return customDimensions.reduce((nextDimension, dimension, dimensionIdx) => {
+            return nextDimension.then((batch) => {
+              if (
+                existingDimensions[dimensionIdx] &&
+                shouldBeChanged(existingDimensions[dimensionIdx], dimension)
+              ) {
+                dimension.id = `ga:dimension${dimensionIdx + 1}`;
+                dimension.index = dimensionIdx + 1;
+                batch.add(insertPatchDimensionsBatch({to:{oauth2Client, accountId, webPropertyId}, dimension}))
+              }
+              if (!existingDimensions[dimensionIdx] && dimension) {
+                dimension.id = `ga:dimension${dimensionIdx + 1}`;
+                dimension.index = dimensionIdx + 1;
+                batch.add(insertDimensionsBatch({to:{oauth2Client, accountId, webPropertyId}, dimension}))
+              }
+              return batch;
+            });
+          }, Promise.resolve(batch))
+          .then((batch) => {
+            return new Promise((resolve, reject) => {
+              batch.run((err, response) => {
+                const {errors, parts} = response;
+                if(errors>0) console.log(`number of errors ${errors}: ${JSON.stringify(response)}`)
+                console.log(JSON.stringify(parts, null, 2))
+                parts.reduce((cd, p) => {
+                  let dimension = cd.find((d) => d.name === p.name);
+                  console.log(p, "<<", dimension)
+                  dimension.id = p.id;
+                  dimension.index = p.index
+                  return cd;
+                }, customDimensions);
+                if(err) return reject(err);
+                resolve({response});
+              })
+            })
+          });
+          //for each dimension, diff and patch/insert
+        });*/
+    function batchDimensions({ existingDimensions, customDimensions, counter = 2 }) {
+      console.log(`batchDimensions try ${3 - counter}`);
+      if (counter < 0) {
+        return false;
+      }
+      return customDimensions
+        .reduce((nextDimension, dimension, dimensionIdx) => {
+          return nextDimension.then((batch) => {
+            if (
+              existingDimensions[dimensionIdx] &&
+              shouldBeChanged(existingDimensions[dimensionIdx], dimension)
+            ) {
+              console.log(`patch ${dimension.name}`);
+              batch.add(
+                insertPatchDimensionsBatch({
+                  to: { oauth2Client, accountId, webPropertyId },
+                  dimension
+                })
+              );
+            }
+            if (!existingDimensions[dimensionIdx] && dimension) {
+              console.log(`insert ${dimension.name}`);
+              batch.add(
+                insertDimensionsBatch({ to: { oauth2Client, accountId, webPropertyId }, dimension })
+              );
+            }
+            return batch;
+          });
+        }, Promise.resolve(batch))
+        .then((batch) => {
+          return new Promise((resolve, reject) => {
+            batch.run((err, response) => {
+              batch.reset();
+              const { errors, parts } = response;
+              if (errors > 0)
+                console.log(`number of errors ${errors}: ${JSON.stringify(response)}`);
+
+              const successfulDimensions = parts
+                .filter((p) => p.statusCode === '200')
+                .map((r) => r.body);
+              const failedCustomDimensions = successfulDimensions.reduce(
+                (cd, sd) => {
+                  return cd.filter((c) => c.name !== sd.name);
+                },
+                [...customDimensions]
+              );
+              const failures = parts.filter((p) => p.statusCode !== '200');
+
+              console.log(`failed ${failures.length}`);
+              console.log(JSON.stringify(failures, null, 2));
+              successfulDimensions.forEach((p) => {
+                let dimension = customDimensions.find((d) => d.name === p.name);
+                dimension.id = p.id;
+                dimension.index = p.index;
+                console.log(`${dimension.name} - ${dimension.id} success`);
+              });
+              if (failures.length > 0) {
+                return batchDimensions({
+                  customDimensions: failedCustomDimensions,
+                  existingDimensions,
+                  counter: counter - 1
+                }).then((r) => resolve(r));
+              }
+              if (err) return reject(err);
+              resolve({ response });
+            });
+          });
+        });
+    }
+
+    /*  .then(({ dimensions: existingDimensions }) => {
         return customDimensions.reduce((nextDimension, dimension, dimensionIdx) => {
           return nextDimension.then(() => {
             if (
               existingDimensions[dimensionIdx] &&
               shouldBeChanged(existingDimensions[dimensionIdx], dimension)
             ) {
-              console.log('patch dimension');
+              console.log(`patch dimension to ${dimension.name}`);
               dimension.id = `ga:dimension${dimensionIdx + 1}`;
               dimension.index = dimensionIdx + 1;
               return patchDimensions({
@@ -740,7 +898,7 @@ function make({ oauth2Client, referenceObject }) {
               }).then(({ dimension: newDimension }) => (dimension.id = newDimension.id));
             }
             if (!existingDimensions[dimensionIdx]) {
-              console.log('insert dimension');
+              console.log(`insert dimension ${dimension.name}`);
               dimension.id = `ga:dimension${dimensionIdx + 1}`;
               dimension.index = dimensionIdx + 1;
               return insertDimensions({
@@ -752,7 +910,7 @@ function make({ oauth2Client, referenceObject }) {
           });
         }, Promise.resolve());
         //for each dimension, diff and patch/insert
-      });
+      });*/
   }
   if (views && views.length > 0) {
     const hasUnique = views.reduce((r, { view }) => r || view.uniqueKey, false);
@@ -845,7 +1003,7 @@ function make({ oauth2Client, referenceObject }) {
         });
     }, pipe);
   }
-  return pipe;
+  return pipe.then(() => referenceObject);
 }
 
 //TODO: function getFilters
