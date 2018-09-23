@@ -825,6 +825,8 @@ function make({ oauth2Client, referenceObject }) {
               shouldBeChanged(existingDimensions[dimensionIdx], dimension)
             ) {
               console.log(`patch ${dimension.name}`);
+              dimension.id = `ga:dimension${dimensionIdx + 1}`;
+              dimension.index = dimensionIdx + 1;
               batch.add(
                 insertPatchDimensionsBatch({
                   to: { oauth2Client, accountId, webPropertyId },
