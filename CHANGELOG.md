@@ -1,3 +1,11 @@
+<a name="v1.2.0"></a>
+
+# [v1.2.0](https://github.com/atript/gamanip/compare/v1.1.2...v1.2.0)
+
+## Features
+
+- add batching ([9f56310](https://github.com/atript/gamanip/commits/9f5631023f71a3392eb69bbaa548dcc333b900cb))
+
 <a name="v1.1.2"></a>
 
 # [v1.1.2](https://github.com/atript/gamanip/compare/v1.1.1...v1.1.2)
