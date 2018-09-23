@@ -1,3 +1,11 @@
+<a name="v1.2.1"></a>
+
+# [v1.2.1](https://github.com/atript/gamanip/compare/v1.2.0...v1.2.1)
+
+## Fixes
+
+- bug and add timeout ([c4f57d2](https://github.com/atript/gamanip/commits/c4f57d2a1ebd0bf9d63695c955ca69e2d900f584))
+
 <a name="v1.2.0"></a>
 
 # [v1.2.0](https://github.com/atript/gamanip/compare/v1.1.2...v1.2.0)
