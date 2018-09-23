@@ -815,7 +815,7 @@ function make({ oauth2Client, referenceObject }) {
     function batchDimensions({ existingDimensions, customDimensions, counter = 2 }) {
       console.log(`batchDimensions try ${3 - counter}`);
       if (counter < 0) {
-        return false;
+        return Promise.resolve({});
       }
       return customDimensions
         .reduce((nextDimension, dimension, dimensionIdx) => {
@@ -869,11 +869,13 @@ function make({ oauth2Client, referenceObject }) {
                 console.log(`${dimension.name} - ${dimension.id} success`);
               });
               if (failures.length > 0) {
-                return batchDimensions({
-                  customDimensions: failedCustomDimensions,
-                  existingDimensions,
-                  counter: counter - 1
-                }).then((r) => resolve(r));
+                return setTimeout(() => {
+                  batchDimensions({
+                    customDimensions: failedCustomDimensions,
+                    existingDimensions,
+                    counter: counter - 1
+                  }).then((r) => resolve(r));
+                }, 1000);
               }
               if (err) return reject(err);
               resolve({ response });
