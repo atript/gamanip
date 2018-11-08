@@ -1117,6 +1117,31 @@ function parseGoogleDate(dateString) {
   return `${date.getDate()} ${monthNames[date.getMonth()]}`;
 }
 */
+
+function recursiveCall({
+  fn,
+  options,
+  data = [],
+  type = 'index',
+  startIndex = 0,
+  maxResults = 100,
+}) {
+  return fn(Object.assign(options, { startIndex })).then((resp) => {
+    const nextData = data.concat(resp.data);
+    if (resp.nextLink) {
+      return recursiveCall({
+        fn,
+        options: Object.assign(options, {
+          startIndex: startIndex + maxResults,
+        }),
+        data: nextData,
+      })
+    }
+
+    return nextData;
+  });
+}
+
 module.exports = {
   getAccountSummaries: backOff(getAccountSummaries),
   getAccounts: backOff(getAccounts),
@@ -1134,6 +1159,7 @@ module.exports = {
   insertView: backOff(insertView),
   getGoals: backOff(getGoals),
   insertGoal: backOff(insertGoal),
+  recursiveCall: backOff(recursiveCall),
 
   ReferenceObject: ReferenceObject,
   make: make,
