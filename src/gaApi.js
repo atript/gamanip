@@ -1122,7 +1122,7 @@ function reportPagination({
   options,
   data = [],
   startIndex = 0,
-  maxResults = 100
+  maxResults = 1000
 }) {
   return analytics.data.ga.get(
       Object.assign(options, {
