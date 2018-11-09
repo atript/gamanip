@@ -1118,28 +1118,33 @@ function parseGoogleDate(dateString) {
 }
 */
 
-function recursiveCall({
-  fn,
+function reportPagination({
   options,
   data = [],
-  type = 'index',
   startIndex = 0,
-  maxResults = 100,
+  maxResults = 100
 }) {
-  return fn(Object.assign(options, { startIndex })).then((resp) => {
-    const nextData = data.concat(resp.data);
-    if (resp.nextLink) {
-      return recursiveCall({
-        fn,
-        options: Object.assign(options, {
-          startIndex: startIndex + maxResults,
-        }),
-        data: nextData,
+  return analytics.data.ga.get(
+      Object.assign(options, {
+        'start-index': startIndex,
+        'max-results': maxResults
       })
-    }
+    )
+    .then((resp) => {
+      const nextData = data.concat(resp.data.rows || []);
 
-    return nextData;
-  });
+      // TODO: implement totalResults
+      if (resp.data.nextLink) {
+        return reportPagination({
+          options,
+          maxResults,
+          data: nextData,
+          startIndex: startIndex + maxResults
+        });
+      }
+
+      return nextData;
+    });
 }
 
 module.exports = {
@@ -1159,7 +1164,7 @@ module.exports = {
   insertView: backOff(insertView),
   getGoals: backOff(getGoals),
   insertGoal: backOff(insertGoal),
-  recursiveCall: backOff(recursiveCall),
+  reportPagination: backOff(reportPagination),
 
   ReferenceObject: ReferenceObject,
   make: make,
