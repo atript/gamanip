@@ -33,6 +33,8 @@ A Promise based module for working with Google Analytics Management API.
     * [~getAccounts(query)](#module_gamanip..getAccounts) ⇒ <code>Promise</code>
     * [~getWebProperties(query)](#module_gamanip..getWebProperties) ⇒ <code>Promise</code>
     * [~getWebProperty(query)](#module_gamanip..getWebProperty) ⇒ <code>Promise</code>
+    * [~insertWebProperty(query)](#module_gamanip..insertWebProperty) ⇒ <code>Promise</code>
+    * [~patchWebProperty(query)](#module_gamanip..patchWebProperty) ⇒ <code>Promise</code>
     * [~getDimensions(query)](#module_gamanip..getDimensions) ⇒ <code>Promise</code>
     * [~insertDimensions(query)](#module_gamanip..insertDimensions) ⇒ <code>Promise</code>
     * [~patchDimensions(query)](#module_gamanip..patchDimensions) ⇒ <code>Promise</code>
@@ -41,8 +43,11 @@ A Promise based module for working with Google Analytics Management API.
     * [~patchMetrics(query)](#module_gamanip..patchMetrics) ⇒ <code>Promise</code>
     * [~getViews(query)](#module_gamanip..getViews) ⇒ <code>Promise</code>
     * [~getView(query)](#module_gamanip..getView) ⇒ <code>Promise</code>
+    * [~insertView(query)](#module_gamanip..insertView) ⇒ <code>Promise</code>
+    * [~patchView(query)](#module_gamanip..patchView) ⇒ <code>Promise</code>
     * [~getGoals(query)](#module_gamanip..getGoals) ⇒ <code>Promise</code>
-    * [~insertGoals(query)](#module_gamanip..insertGoals) ⇒ <code>Promise</code>
+    * [~insertGoal(query)](#module_gamanip..insertGoal) ⇒ <code>Promise</code>
+    * [~patchGoal(query)](#module_gamanip..patchGoal) ⇒ <code>Promise</code>
 
 <a name="module_gamanip..MAX_TIMEOUT_COUNT"></a>
 
@@ -130,6 +135,41 @@ Returns an array of web properties.
 | query.from.oauth2Client | <code>object</code> | authenticated client |
 | query.from.accountId | <code>string</code> | the id of account in GA |
 | query.from.webPropertyId | <code>string</code> | the id of web  in GA |
+
+<a name="module_gamanip..insertWebProperty"></a>
+
+### gamanip~insertWebProperty(query) ⇒ <code>Promise</code>
+Get web property data.
+Returns an array of web properties.
+
+**Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
+**Fulfil**: <code>{ from: FromWebProperty, webProperty: Object </code>} - pass down webProperty along with the origin  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.to | [<code>FromWebProperty</code>](#FromWebProperty) |  |
+| query.to.oauth2Client | <code>object</code> | authenticated client |
+| query.to.accountId | <code>string</code> | the id of account in GA |
+| query.webProperty | <code>object</code> | the id of web  in GA |
+
+<a name="module_gamanip..patchWebProperty"></a>
+
+### gamanip~patchWebProperty(query) ⇒ <code>Promise</code>
+Patch web property data.
+Returns an array of web properties.
+
+**Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
+**Fulfil**: <code>{ from: FromWebProperty, webProperty: Object </code>} - pass down webProperty along with the origin  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.to | [<code>FromWebProperty</code>](#FromWebProperty) |  |
+| query.to.oauth2Client | <code>object</code> | authenticated client |
+| query.to.accountId | <code>string</code> | the id of account in GA |
+| query.from.webPropertyId | <code>string</code> | the id of web  in GA |
+| query.webProperty | <code>object</code> | the id of web  in GA |
 
 <a name="module_gamanip..getDimensions"></a>
 
@@ -270,6 +310,43 @@ Returns an array of views.
 | query.from.webPropertyId | <code>string</code> | the id of webProperty in GA |
 | query.from.profileId | <code>string</code> | the id of view in GA |
 
+<a name="module_gamanip..insertView"></a>
+
+### gamanip~insertView(query) ⇒ <code>Promise</code>
+Insert view to web property.
+Returns an array of views.
+
+**Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
+**Fulfil**: <code>{ from: FromProfile, view: Object </code>} - pass down views along with the origin  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.from | [<code>FromProfile</code>](#FromProfile) |  |
+| query.from.oauth2Client | <code>object</code> | authenticated client |
+| query.from.accountId | <code>string</code> | the id of account in GA |
+| query.from.webPropertyId | <code>string</code> | the id of webProperty in GA |
+| query.view | <code>object</code> | the view |
+
+<a name="module_gamanip..patchView"></a>
+
+### gamanip~patchView(query) ⇒ <code>Promise</code>
+Patch view to web property.
+Returns an array of views.
+
+**Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
+**Fulfil**: <code>{ from: FromProfile, view: Object </code>} - pass down views along with the origin  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.from | [<code>FromProfile</code>](#FromProfile) |  |
+| query.from.oauth2Client | <code>object</code> | authenticated client |
+| query.from.accountId | <code>string</code> | the id of account in GA |
+| query.from.webPropertyId | <code>string</code> | the id of webProperty in GA |
+| query.from.profileId | <code>string</code> | the id of profileId in GA |
+| query.view | <code>object</code> | the view |
+
 <a name="module_gamanip..getGoals"></a>
 
 ### gamanip~getGoals(query) ⇒ <code>Promise</code>
@@ -288,10 +365,28 @@ Returns an array of goals.
 | query.from.webPropertyId | <code>string</code> | the id of webProperty in GA |
 | query.from.profileId | <code>string</code> | the id of view in GA |
 
-<a name="module_gamanip..insertGoals"></a>
+<a name="module_gamanip..insertGoal"></a>
 
-### gamanip~insertGoals(query) ⇒ <code>Promise</code>
+### gamanip~insertGoal(query) ⇒ <code>Promise</code>
 Insert goal to a view.
+Returns a created goal.
+
+**Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
+**Fulfil**: <code>{ from: FromProfile, goal: Object </code>} - pass down goal along with the origin  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| query |  |  |
+| query.from | [<code>FromProfile</code>](#FromProfile) |  |
+| query.from.oauth2Client | <code>object</code> | authenticated client |
+| query.from.accountId | <code>string</code> | the id of account in GA |
+| query.from.webPropertyId | <code>string</code> | the id of webProperty in GA |
+| query.from.profileId | <code>string</code> | the id of view in GA |
+
+<a name="module_gamanip..patchGoal"></a>
+
+### gamanip~patchGoal(query) ⇒ <code>Promise</code>
+Patch goal to a view.
 Returns a created goal.
 
 **Kind**: inner method of [<code>gamanip</code>](#module_gamanip)  
