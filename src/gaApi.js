@@ -69,9 +69,9 @@ function backOff(fn) {
  * @fulfil {{ from: FromRoot, summary: Array.Object }} - pass down summaries along with the origin
  */
 function getAccountSummaries({ from }) {
-  const { oauth2Client: auth } = from;
+  const { oauth2Client: auth, quotaUser } = from;
   return analytics.management.accountSummaries
-    .list({ auth })
+    .list({ auth, quotaUser })
     .then(({ data }) => ({ from, summaries: data.items }))
     .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
@@ -86,9 +86,9 @@ function getAccountSummaries({ from }) {
  * @fulfil {{ from: FromRoot, accounts: Array.Object }} - pass down accounts along with the origin
  */
 function getAccounts({ from }) {
-  const { oauth2Client: auth } = from;
+  const { oauth2Client: auth, quotaUser } = from;
   return analytics.management.accounts
-    .list({ auth })
+    .list({ auth, quotaUser })
     .then(({ data }) => ({ from, accounts: data.items }))
     .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
@@ -104,9 +104,9 @@ function getAccounts({ from }) {
  * @fulfil {{ from: FromAccount, webProperties: Array.Object }} - pass down webProperties along with the origin
  */
 function getWebProperties({ from }) {
-  const { oauth2Client: auth, accountId } = from;
+  const { oauth2Client: auth, accountId, quotaUser } = from;
   return analytics.management.webproperties
-    .list({ auth, accountId })
+    .list({ auth, accountId, quotaUser: quotaUser || accountId })
     .then(({ data }) => ({ from, webProperties: data.items }))
     .catch((err) => Promise.reject(new GoogleAnalyticsError(err)));
 }
@@ -1141,13 +1141,9 @@ function parseGoogleDate(dateString) {
 }
 */
 
-function reportPagination({
-  options,
-  data = [],
-  startIndex = 0,
-  maxResults = 1000
-}) {
-  return analytics.data.ga.get(
+function reportPagination({ options, data = [], startIndex = 0, maxResults = 1000 }) {
+  return analytics.data.ga
+    .get(
       Object.assign(options, {
         'start-index': startIndex,
         'max-results': maxResults
