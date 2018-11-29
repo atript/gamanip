@@ -1,0 +1,8 @@
+module.exports = {
+  developmentBranch: 'dev',
+  productionBranch: 'master',
+  plugins: [
+    'bump-package-json',
+    'generate-changelog'
+  ]
+};
