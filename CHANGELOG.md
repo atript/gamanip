@@ -1,3 +1,7 @@
+<a name="v1.6.5"></a>
+
+# [v1.6.5](https://github.com/atript/gamanip/compare/v1.6.4...v1.6.5)
+
 <a name="v1.6.4"></a>
 
 # [v1.6.4](https://github.com/atript/gamanip/compare/v1.6.3...v1.6.4)

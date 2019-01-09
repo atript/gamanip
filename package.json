@@ -1,6 +1,6 @@
 {
   "name": "gamanip",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Google Analytics Data/Management Service/API",
   "main": "src/gaApi.js",
   "repository": {
