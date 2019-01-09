@@ -774,6 +774,92 @@ function make({ oauth2Client, referenceObject }) {
       .then(({ dimensions: existingDimensions }) => {
         return batchDimensions({ existingDimensions, customDimensions });
       });
+
+    function batchDimensions({ customDimensions, forceOrder = false, counter = 10 }) {
+      return getDimensions({ from: { oauth2Client, accountId, webPropertyId } })
+        .then(buildDimensionsAdjustments)
+        .then(applyTheBatch);
+
+      function buildDimensionsAdjustments({ dimensions: existingDimensions }) {
+        return customDimensions
+          .reduce(addBatchforEachCustomDimension, Promise.resolve([]))
+          .then((batchArr) => ({ batchArr, existingDimensions }));
+
+        function addBatchforEachCustomDimension(nextDimension, dimension, dimensionIdx) {
+          return nextDimension.then((batchArr) => {
+            const { name, scope, active, id, index } = dimension;
+            if (
+              existingDimensions[dimensionIdx] &&
+              shouldBeChanged(existingDimensions[dimensionIdx], { name, scope, active, id, index })
+            ) {
+              console.log(`patch cd${dimensionIdx + 1}:${dimension.name} in ${accountId}`);
+              dimension.id = `ga:dimension${dimensionIdx + 1}`;
+              dimension.index = dimensionIdx + 1;
+              batchArr.push(
+                insertPatchDimensionsBatch({
+                  to: { oauth2Client, accountId, webPropertyId },
+                  dimension
+                })
+              );
+            }
+            if (!existingDimensions[dimensionIdx] && dimension) {
+              console.log(`insert cd${dimensionIdx + 1}:${dimension.name} in ${accountId}`);
+              batchArr.push(
+                insertDimensionsBatch({ to: { oauth2Client, accountId, webPropertyId }, dimension })
+              );
+            }
+            return batchArr;
+          });
+        }
+      }
+
+      function applyTheBatch({ batchArr, existingDimensions }) {
+        if (batchArr.length === 0) return existingDimensions;
+        batch = batchArr.slice(0, BATCH_CONCURRENT_WRITES).reduce((b, ba) => b.add(ba) && b, batch);
+
+        return new Promise((resolve, reject) => {
+          batch.run((err, response) => {
+            batch.reset();
+            const { errors, parts } = response;
+            if (errors > 0) console.log(`number of errors ${errors}: ${JSON.stringify(response)}`);
+
+            const successfulDimensions = parts
+              .filter((p) => p.statusCode === '200')
+              .map((r) => r.body);
+
+            successfulDimensions.forEach((p) => {
+              console.log(`${p.name} - ${p.id} success`);
+            });
+
+            const failures = parts.filter((p) => p.statusCode !== '200');
+
+            console.log(
+              `failed ${failures.length}, success ${successfulDimensions.length} of ${
+                customDimensions.length
+              }`
+            );
+            console.log(JSON.stringify(failures));
+            try {
+              failures.forEach((f) =>
+                console.log(
+                  `${f.statusCode}-${f.body.error.errors[0].reason}:${
+                    f.body.error.errors[0].message
+                  }`
+                )
+              );
+            } catch (e) {}
+            if (err) return reject(err);
+            return setTimeout(() => {
+              batchDimensions({
+                customDimensions,
+                counter: counter - 1
+              }).then((r) => resolve(r));
+            }, 1000);
+          });
+        });
+      }
+    }
+
     /*
       .then(({ dimensions: existingDimensions }) => {
           return customDimensions.reduce((nextDimension, dimension, dimensionIdx) => {
@@ -814,7 +900,7 @@ function make({ oauth2Client, referenceObject }) {
           });
           //for each dimension, diff and patch/insert
         });*/
-    function batchDimensions({ existingDimensions, customDimensions, counter = 5 }) {
+    /* function batchDimensions({ existingDimensions, customDimensions, counter = 5 }) {
       if (counter < 0) {
         return Promise.resolve({});
       }
@@ -907,7 +993,7 @@ function make({ oauth2Client, referenceObject }) {
             });
           });
         });
-    }
+    }*/
 
     /*  .then(({ dimensions: existingDimensions }) => {
         return customDimensions.reduce((nextDimension, dimension, dimensionIdx) => {
