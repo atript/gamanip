@@ -790,7 +790,10 @@ function make({ oauth2Client, referenceObject }) {
             const { name, scope, active, id, index } = dimension;
             if (
               existingDimensions[dimensionIdx] &&
-              shouldBeChanged(existingDimensions[dimensionIdx], { name, scope, active, id, index })
+              shouldBeChanged(
+                existingDimensions[dimensionIdx],
+                pick(dimension, 'name', 'scope', 'active', 'id', 'index')
+              )
             ) {
               console.log(`patch cd${dimensionIdx + 1}:${dimension.name} in ${accountId}`);
               dimension.id = `ga:dimension${dimensionIdx + 1}`;
@@ -1250,6 +1253,10 @@ function reportPagination({ options, data = [], startIndex = 0, maxResults = 100
 
       return nextData;
     });
+}
+
+function pick(o, ...props) {
+  return Object.assign({}, ...props.map((prop) => o[prop] && { [prop]: o[prop] }));
 }
 
 module.exports = {
