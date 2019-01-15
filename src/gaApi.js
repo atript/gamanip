@@ -843,13 +843,15 @@ function make({ oauth2Client, referenceObject }) {
             );
             console.log(JSON.stringify(failures));
             try {
-              failures.forEach((f) =>
+              failures.forEach((f) => {
+                if (p.body.error.errors[0].reason === 'insufficientPermissions')
+                  return reject(p.body.error);
                 console.log(
                   `${f.statusCode}-${f.body.error.errors[0].reason}:${
                     f.body.error.errors[0].message
                   }`
-                )
-              );
+                );
+              });
             } catch (e) {}
             if (err) return reject(err);
             return setTimeout(() => {
